@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "v1/proto";
+
+enum Code {
+  CODE_UNKNOWN = 0;
+  CODE_SUCCESS = 1;
+  CODE_FAILURE = 2;
+  CODE_INVALID_DATA = 3;
+}
+
+service GameProcessService {
+  rpc Join(JoinRequest) returns (JoinResponse);
+  rpc Bet(BetRequest) returns (BetResponse);
+  rpc Leave(LeaveRequest) returns (LeaveResponse);
+}
+
+message JoinRequest {
+  string player_id = 1;
+  string session = 2;
+}
+
+message JoinResponse {
+  Code code = 1;
+  repeated int32 chips = 2;
+  repeated int32 bet_zones = 3;
+  int32 state = 4;
+}
+
+message BetRequest {
+  int32 bet_zone = 1;
+  int32 bet_chip = 2;
+  string session = 3;
+}
+
+message BetResponse {
+  Code code = 1;
+}
+
+message LeaveRequest {
+  string player_id = 1;
+  string session = 2;
+}
+
+message LeaveResponse {
+  Code code = 1;
+}

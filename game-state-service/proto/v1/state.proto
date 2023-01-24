@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package proto.v1;
+
+option go_package = "v1/proto";
+
+enum State {
+  STATE_INIT = 0;
+  STATE_GAME_START = 1;
+  STATE_START_BET = 2;
+  STATE_STOP_BET = 3;
+  STATE_AWARD= 4;
+  STATE_END = 5;
+}
+
+service GameStateService {
+  rpc State (StateRequest) returns (stream StateResponse);
+}
+message StateRequest {}
+
+message StateResponse {
+  State state = 1;
+  int32 t_minus = 2;
+}
