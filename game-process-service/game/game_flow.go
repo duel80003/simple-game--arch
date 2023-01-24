@@ -29,6 +29,7 @@ func StartGameFlow() {
 			GetRoom().State = proto.State_STATE_GAME_START
 		case proto.State_STATE_START_BET:
 			GetRoom().State = proto.State_STATE_START_BET
+			GetRoom().BetZoneInfos(state.GetTMinus())
 		case proto.State_STATE_STOP_BET:
 			GetRoom().State = proto.State_STATE_START_BET
 		case proto.State_STATE_AWARD:

@@ -24,6 +24,7 @@ func init() {
 
 	drivers.InitStateGrpcConn()
 	drivers.RedisInit()
+	drivers.RabbitMQInit()
 }
 
 func serverStart() {
@@ -58,4 +59,5 @@ func main() {
 	drivers.CloseStateGrpcConn()
 	drivers.RedisFlushAll()
 	drivers.RedisClose()
+	drivers.RabbitMQClose()
 }

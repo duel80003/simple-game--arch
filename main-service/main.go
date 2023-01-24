@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"main-service/drivers"
 	"main-service/handler"
+	"main-service/workers"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,6 +21,7 @@ func init() {
 		tools.Logger.Infof("load env file failure")
 	}
 	drivers.InitGameGrpcConn()
+	drivers.RabbitMQInit()
 }
 
 func main() {
@@ -35,7 +37,7 @@ func main() {
 			wsHandler.Run(conn)
 		}))
 	}()
-
+	workers.StartWorkers()
 	c := make(chan os.Signal, 1)
 	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
 	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
@@ -45,4 +47,5 @@ func main() {
 	_, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 	drivers.CloseGameGrpcConn()
+	drivers.RabbitMQClose()
 }

@@ -1,6 +1,5 @@
 version: "3.9"
 
-
 services:
   redis:
     restart: always
@@ -9,8 +8,11 @@ services:
     ports:
       - "6379:6379"
   rabbitmq:
-     image: "rabbitmq:3.10"
+     image: "rabbitmq:management"
      container_name: rabbitmq
      ports:
        - "5672:5672"
        - "15672:15672"
+     environment:
+       - RABBITMQ_DEFAULT_USER=root
+       - RABBITMQ_DEFAULT_PASS=1234

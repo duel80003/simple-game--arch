@@ -16,7 +16,7 @@ func init() {
 		tools.Logger.Infof("load env file failure")
 	}
 	drivers.RedisInit()
-
+	drivers.RabbitMQInit()
 }
 
 func TestUpdateRoomBetInfo(t *testing.T) {

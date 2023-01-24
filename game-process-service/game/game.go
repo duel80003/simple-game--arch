@@ -1,7 +1,10 @@
 package game
 
 import (
+	"context"
 	"game-process-service/config"
+	. "game-process-service/drivers"
+	"game-process-service/models"
 	proto "game-process-service/proto/gen/v1"
 	"game-process-service/repositories"
 	tools "github.com/duel80003/my-tools"
@@ -10,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 var room *Room
@@ -25,6 +29,7 @@ type Room struct {
 	PlayerSession map[string]string
 	State         proto.State
 	mux           sync.RWMutex
+	ticker        *time.Ticker
 }
 
 func InitGameRoom() {
@@ -35,6 +40,7 @@ func InitGameRoom() {
 	room.RoomType = roomType
 	room.Chips = parseChips(chips)
 	room.PlayerSession = make(map[string]string)
+	room.ticker = time.NewTicker(1 * time.Second)
 }
 
 func parseChips(chipStr string) (chips []int32) {
@@ -85,4 +91,27 @@ func (room *Room) Bet(sid string, betZone, bet int32) bool {
 	repositories.UpdateRoomBetInfo(room.RoomID, config.BetZoneMap[betZone], bet)
 	repositories.UpdatePlayerBetInfo(sid, config.BetZoneMap[betZone], bet)
 	return true
+}
+
+func (room *Room) BetZoneInfos(tMinus int32) {
+	defer room.ticker.Stop()
+	room.ticker.Reset(1 * time.Second)
+	for {
+		select {
+		case <-room.ticker.C:
+			betZones := repositories.GetRoomBetInfo(room.RoomID)
+			betZoneInfos := new(models.BetZoneInfos)
+			betZoneInfos.BetZones = betZones
+			betZoneInfos.TMinus = tMinus
+			event := new(models.Event)
+			event.Exchange = Exchange
+			event.Router = BetTableTMinus
+			event.Data = betZoneInfos
+			repositories.PublishEvent(context.TODO(), event)
+			tMinus--
+			if tMinus <= 0 {
+				return
+			}
+		}
+	}
 }
