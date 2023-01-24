@@ -7,10 +7,11 @@ import (
 )
 
 var (
-	RabbitMQConn   *amqp.Connection
-	Exchange       string
-	BetTableTMinus string
-	TableState     string
+	RabbitMQConn      *amqp.Connection
+	ExchangeBetInfo   string
+	ExchangeGameState string
+	BetTableTMinus    string
+	TableState        string
 )
 
 func RabbitMQInit() {
@@ -30,13 +31,12 @@ func RabbitMQInit() {
 }
 
 func InitExchange() bool {
-	Exchange = os.Getenv("EXCHANGE")
-	if Exchange == "" {
+	ExchangeBetInfo = os.Getenv("EXCHANGE_BET_INFO")
+	if ExchangeBetInfo == "" {
 		return false
 	}
-
-	TableState = os.Getenv("TABLE_STATE")
-	if TableState == "" {
+	ExchangeGameState = os.Getenv("EXCHANGE_STATE")
+	if ExchangeGameState == "" {
 		return false
 	}
 	return true

@@ -11,7 +11,7 @@ import (
 
 func betZoneInfoWorkerStart() {
 	go func() {
-		ch, msgs := workerInit(Exchange, BetTableTMinus)
+		ch, msgs := workerInit(ExchangeBetInfo, BetTableTMinus)
 		defer ch.Close()
 		for d := range msgs {
 			betZoneInfoMsgHandler(d)
@@ -20,12 +20,12 @@ func betZoneInfoWorkerStart() {
 }
 
 func betZoneInfoMsgHandler(d amqp091.Delivery) {
-	tools.Logger.Infof("[%s] receives a message: %s", BetTableTMinus, d.Body)
+	tools.Logger.Debugf("[%s] receives a message: %s", BetTableTMinus, d.Body)
 	betZoneInfo := &models.BetZoneInfos{}
 	err := json.Unmarshal(d.Body, betZoneInfo)
 	if err != nil {
 		tools.Logger.Errorf("unmarshal error: %s", err)
 		return
 	}
-	handler.GetWsHandler().Broadcast(handler.BetZoneInfos, betZoneInfo)
+	handler.GetWsHandler().Broadcast(handler.BetZoneInfos, betZoneInfo.GameID, betZoneInfo)
 }

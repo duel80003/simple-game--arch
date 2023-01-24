@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/duel80003/my-tools v0.0.0-20221224021502-9715de53fe5b
 	github.com/gobwas/ws v1.1.0
+	github.com/gomodule/redigo v1.8.9
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	github.com/rabbitmq/amqp091-go v1.6.0

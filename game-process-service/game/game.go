@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"fmt"
 	"game-process-service/config"
 	. "game-process-service/drivers"
 	"game-process-service/models"
@@ -25,6 +26,7 @@ func GetRoom() *Room {
 type Room struct {
 	RoomID        string
 	RoomType      string
+	GameID        string
 	Chips         []int32
 	PlayerSession map[string]string
 	State         proto.State
@@ -35,8 +37,10 @@ type Room struct {
 func InitGameRoom() {
 	roomType := os.Getenv("ROOM_TYPE")
 	chips := os.Getenv("CHIPS")
+	gid := os.Getenv("GAME_ID")
 	room = new(Room)
-	room.RoomID = uuid.NewString()
+	room.GameID = gid
+	room.RoomID = fmt.Sprintf("room_%s", uuid.NewString())
 	room.RoomType = roomType
 	room.Chips = parseChips(chips)
 	room.PlayerSession = make(map[string]string)
@@ -68,7 +72,7 @@ func (room *Room) Join(pid, sid string) {
 	room.mux.Lock()
 	defer room.mux.Unlock()
 	room.PlayerSession[sid] = pid
-	repositories.SetPlayer(sid, pid)
+	repositories.SetPlayer(sid, pid, room.GameID)
 }
 
 func (room *Room) Leave(sid string) {
@@ -103,8 +107,9 @@ func (room *Room) BetZoneInfos(tMinus int32) {
 			betZoneInfos := new(models.BetZoneInfos)
 			betZoneInfos.BetZones = betZones
 			betZoneInfos.TMinus = tMinus
+			betZoneInfos.GameID = room.GameID
 			event := new(models.Event)
-			event.Exchange = Exchange
+			event.Exchange = ExchangeBetInfo
 			event.Router = BetTableTMinus
 			event.Data = betZoneInfos
 			repositories.PublishEvent(context.TODO(), event)
@@ -118,10 +123,11 @@ func (room *Room) BetZoneInfos(tMinus int32) {
 
 func (room *Room) StateNotify() {
 	event := new(models.Event)
-	event.Exchange = Exchange
+	event.Exchange = ExchangeGameState
 	event.Router = TableState
 	state := new(models.StateInfo)
 	state.State = room.State
+	state.GameID = room.GameID
 	event.Data = state
 	repositories.PublishEvent(context.TODO(), event)
 }

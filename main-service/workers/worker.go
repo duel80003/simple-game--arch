@@ -21,7 +21,7 @@ func workerInit(exchange, routerKey string) (*amqp091.Channel, <-chan amqp091.De
 
 	err = ch.ExchangeDeclare(
 		exchange, // name
-		"direct", // type
+		"fanout", // type
 		true,     // durable
 		false,    // auto-deleted
 		false,    // internal

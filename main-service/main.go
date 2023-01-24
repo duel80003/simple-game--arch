@@ -21,6 +21,7 @@ func init() {
 		tools.Logger.Infof("load env file failure")
 	}
 	drivers.InitGameGrpcConn()
+	drivers.RedisInit()
 	drivers.RabbitMQInit()
 }
 
@@ -47,5 +48,6 @@ func main() {
 	_, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 	drivers.CloseGameGrpcConn()
+	drivers.RedisClose()
 	drivers.RabbitMQClose()
 }

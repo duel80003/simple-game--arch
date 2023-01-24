@@ -10,9 +10,11 @@ type Event struct {
 
 type BetZoneInfos struct {
 	*BetZones
-	TMinus int32 `json:"tMinus"`
+	GameID string `json:"gameId"`
+	TMinus int32  `json:"tMinus"`
 }
 
 type StateInfo struct {
-	State proto.State `json:"state"`
+	GameID string      `json:"gameId"`
+	State  proto.State `json:"state"`
 }

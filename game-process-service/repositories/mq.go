@@ -17,7 +17,7 @@ func PublishEvent(ctx context.Context, event *models.Event) (err error) {
 	}
 	err = ch.ExchangeDeclare(
 		event.Exchange, // name
-		"direct",       // type
+		"fanout",       // type
 		true,           // durable
 		false,          // auto-deleted
 		false,          // internal

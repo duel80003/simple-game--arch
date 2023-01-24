@@ -7,11 +7,11 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
-func SetPlayer(sid, pid string) {
-	_, err := drivers.GetRedisConn().Do("HSET", sid, "player_id", pid)
-	if err != nil {
-		tools.Logger.Errorf("[SetPlayer] error: %s", err)
-	}
+func SetPlayer(sid, pid, gid string) {
+	conn := drivers.GetRedisConn()
+	conn.Send("HSET", sid, "player_id", pid)
+	conn.Send("HSET", sid, "game_id", gid)
+	conn.Flush()
 }
 
 func UpdatePlayerBetInfo(sid, betZone string, bet int32) {

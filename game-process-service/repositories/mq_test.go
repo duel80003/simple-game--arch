@@ -10,7 +10,7 @@ import (
 
 func TestPushEvent(t *testing.T) {
 	event := &models.Event{
-		Exchange: Exchange,
+		Exchange: ExchangeBetInfo,
 		Router:   BetTableTMinus,
 		Data:     "test",
 	}

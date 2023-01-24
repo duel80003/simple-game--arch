@@ -11,7 +11,7 @@ import (
 
 func StateWorkerStart() {
 	go func() {
-		ch, msgs := workerInit(Exchange, TableState)
+		ch, msgs := workerInit(ExchangeGameState, TableState)
 		defer ch.Close()
 		for d := range msgs {
 			stateMsgHandler(d)
@@ -20,12 +20,12 @@ func StateWorkerStart() {
 }
 
 func stateMsgHandler(d amqp091.Delivery) {
-	tools.Logger.Infof("[%s] receives a message: %s", TableState, d.Body)
+	tools.Logger.Debugf("[%s] receives a message: %s", TableState, d.Body)
 	state := new(models.StateInfo)
 	err := json.Unmarshal(d.Body, state)
 	if err != nil {
 		tools.Logger.Errorf("unmarshal error: %s", err)
 		return
 	}
-	handler.GetWsHandler().Broadcast(handler.State, state)
+	handler.GetWsHandler().Broadcast(handler.State, state.GameID, state)
 }

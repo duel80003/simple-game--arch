@@ -6,6 +6,7 @@ import (
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
 	"github.com/google/uuid"
+	"main-service/repositories"
 	"net"
 	"sync"
 )
@@ -83,14 +84,20 @@ func (handler *WSHandler) Run(conn net.Conn) {
 	}()
 }
 
-func (handler *WSHandler) Broadcast(topic string, data interface{}) {
+func (handler *WSHandler) Broadcast(topic, gameId string, data interface{}) {
 	resp := Response{
 		Topic: topic,
 		Data:  data,
 	}
 	handler.sidMapConn.Range(func(key, value any) bool {
-		tools.Logger.Infof("send state info")
 		conn := value.(net.Conn)
+		sid := key.(string)
+		gid := repositories.GetPlayerGameId(sid)
+		tools.Logger.Infof("sid; %s, gid: %s", sid, gid)
+
+		if gid != gameId {
+			return true
+		}
 		w := wsutil.NewWriter(conn, ws.StateServerSide, ws.OpText)
 		encoder := json.NewEncoder(w)
 		if err := encoder.Encode(&resp); err != nil {
