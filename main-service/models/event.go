@@ -1,6 +1,6 @@
 package models
 
-import proto "game-process-service/proto/gen/v1"
+import proto "main-service/proto/gen/v1"
 
 type Event struct {
 	Exchange string

@@ -10,6 +10,7 @@ var (
 	RabbitMQConn   *amqp.Connection
 	Exchange       string
 	BetTableTMinus string
+	TableState     string
 )
 
 func RabbitMQInit() {
@@ -40,6 +41,10 @@ func InitRouters() bool {
 	BetTableTMinus = os.Getenv("BET_TABLE_T_MINUS")
 	if BetTableTMinus == "" {
 		tools.Logger.Errorf("empty key: %s", BetTableTMinus)
+		return false
+	}
+	TableState = os.Getenv("TABLE_STATE")
+	if TableState == "" {
 		return false
 	}
 	return true

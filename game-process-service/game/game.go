@@ -115,3 +115,13 @@ func (room *Room) BetZoneInfos(tMinus int32) {
 		}
 	}
 }
+
+func (room *Room) StateNotify() {
+	event := new(models.Event)
+	event.Exchange = Exchange
+	event.Router = TableState
+	state := new(models.StateInfo)
+	state.State = room.State
+	event.Data = state
+	repositories.PublishEvent(context.TODO(), event)
+}

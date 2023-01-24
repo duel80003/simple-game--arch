@@ -1,9 +1,12 @@
 package workers
 
 import (
+	"encoding/json"
 	tools "github.com/duel80003/my-tools"
 	"github.com/rabbitmq/amqp091-go"
 	. "main-service/drivers"
+	"main-service/handler"
+	"main-service/models"
 )
 
 func betZoneInfoWorkerStart() {
@@ -11,31 +14,18 @@ func betZoneInfoWorkerStart() {
 		ch, msgs := workerInit(Exchange, BetTableTMinus)
 		defer ch.Close()
 		for d := range msgs {
-			userMsgHandler(d)
+			betZoneInfoMsgHandler(d)
 		}
 	}()
 }
 
-func userMsgHandler(d amqp091.Delivery) {
+func betZoneInfoMsgHandler(d amqp091.Delivery) {
 	tools.Logger.Infof("[%s] receives a message: %s", BetTableTMinus, d.Body)
-	//user := &models.User{}
-	//err := json.Unmarshal(d.Body, user)
-	//if err != nil {
-	//	logger.Errorf("unmarshal error: %s", err)
-	//	return
-	//}
-	//err = validate.Struct(user)
-	//if err != nil {
-	//	logger.Errorf("invalid data %s", err)
-	//	return
-	//}
-	//now := time.Now().Unix()
-	//user.CreatedAt = now
-	//user.UpdatedAt = now
-	//user.Rooms = make([]string, 0)
-	//err = GetUserRepository().Insert(context.TODO(), user)
-	//if err != nil {
-	//	// TODO put message back to mq
-	//	logger.Errorf("handle message error: %s", err)
-	//}
+	betZoneInfo := &models.BetZoneInfos{}
+	err := json.Unmarshal(d.Body, betZoneInfo)
+	if err != nil {
+		tools.Logger.Errorf("unmarshal error: %s", err)
+		return
+	}
+	handler.GetWsHandler().Broadcast(handler.BetZoneInfos, betZoneInfo)
 }

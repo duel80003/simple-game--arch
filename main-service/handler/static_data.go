@@ -1,9 +1,11 @@
 package handler
 
 const (
-	Join  = "join"
-	Bet   = "bet"
-	Leave = "leave"
+	Join         = "join"
+	Bet          = "bet"
+	Leave        = "leave"
+	State        = "state"
+	BetZoneInfos = "betZoneInfos"
 )
 
 var (

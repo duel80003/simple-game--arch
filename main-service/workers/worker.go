@@ -63,4 +63,5 @@ func workerInit(exchange, routerKey string) (*amqp091.Channel, <-chan amqp091.De
 
 func StartWorkers() {
 	betZoneInfoWorkerStart()
+	StateWorkerStart()
 }

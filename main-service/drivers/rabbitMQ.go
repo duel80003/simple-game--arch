@@ -10,6 +10,7 @@ var (
 	RabbitMQConn   *amqp.Connection
 	Exchange       string
 	BetTableTMinus string
+	TableState     string
 )
 
 func RabbitMQInit() {
@@ -31,6 +32,11 @@ func RabbitMQInit() {
 func InitExchange() bool {
 	Exchange = os.Getenv("EXCHANGE")
 	if Exchange == "" {
+		return false
+	}
+
+	TableState = os.Getenv("TABLE_STATE")
+	if TableState == "" {
 		return false
 	}
 	return true

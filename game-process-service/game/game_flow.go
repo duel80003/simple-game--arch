@@ -27,15 +27,20 @@ func StartGameFlow() {
 		switch state.State {
 		case proto.State_STATE_GAME_START:
 			GetRoom().State = proto.State_STATE_GAME_START
+			GetRoom().StateNotify()
 		case proto.State_STATE_START_BET:
 			GetRoom().State = proto.State_STATE_START_BET
+			GetRoom().StateNotify()
 			GetRoom().BetZoneInfos(state.GetTMinus())
 		case proto.State_STATE_STOP_BET:
-			GetRoom().State = proto.State_STATE_START_BET
+			GetRoom().State = proto.State_STATE_STOP_BET
+			GetRoom().StateNotify()
 		case proto.State_STATE_AWARD:
 			GetRoom().State = proto.State_STATE_AWARD
+			GetRoom().StateNotify()
 		case proto.State_STATE_END:
 			GetRoom().State = proto.State_STATE_END
+			GetRoom().StateNotify()
 			GetRoom().Reset()
 		}
 	}
