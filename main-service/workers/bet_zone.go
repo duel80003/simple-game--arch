@@ -21,11 +21,11 @@ func betZoneInfoWorkerStart() {
 
 func betZoneInfoMsgHandler(d amqp091.Delivery) {
 	tools.Logger.Debugf("[%s] receives a message: %s", BetTableTMinus, d.Body)
-	betZoneInfo := &models.BetZoneInfos{}
-	err := json.Unmarshal(d.Body, betZoneInfo)
+	eventData := new(models.EventData)
+	err := json.Unmarshal(d.Body, eventData)
 	if err != nil {
 		tools.Logger.Errorf("unmarshal error: %s", err)
 		return
 	}
-	handler.GetWsHandler().Broadcast(handler.BetZoneInfos, betZoneInfo.GameID, betZoneInfo)
+	handler.GetWsHandler().Broadcast(handler.BetZoneInfos, eventData)
 }

@@ -28,7 +28,7 @@ type Room struct {
 	RoomType      string
 	GameID        string
 	Chips         []int32
-	PlayerSession map[string]string
+	PlayerSession map[string]string // key session, value pid
 	State         proto.State
 	mux           sync.RWMutex
 	ticker        *time.Ticker
@@ -107,12 +107,19 @@ func (room *Room) BetZoneInfos(tMinus int32) {
 			betZoneInfos := new(models.BetZoneInfos)
 			betZoneInfos.BetZones = betZones
 			betZoneInfos.TMinus = tMinus
-			betZoneInfos.GameID = room.GameID
 			event := new(models.Event)
 			event.Exchange = ExchangeBetInfo
 			event.Router = BetTableTMinus
-			event.Data = betZoneInfos
-			repositories.PublishEvent(context.TODO(), event)
+			event.Data = &models.EventData{
+				Data: betZoneInfos,
+			}
+			room.mux.RLock()
+			for key, value := range room.PlayerSession {
+				event.Data.Session = key
+				event.Data.PlayerID = value
+				repositories.PublishEvent(context.TODO(), event)
+			}
+			room.mux.RUnlock()
 			tMinus--
 			if tMinus <= 0 {
 				return
@@ -127,7 +134,15 @@ func (room *Room) StateNotify() {
 	event.Router = TableState
 	state := new(models.StateInfo)
 	state.State = room.State
-	state.GameID = room.GameID
-	event.Data = state
-	repositories.PublishEvent(context.TODO(), event)
+	event.Data = &models.EventData{
+		Data: state,
+	}
+	room.mux.RLock()
+	defer room.mux.RUnlock()
+	for key, value := range room.PlayerSession {
+		event.Data.Session = key
+		event.Data.PlayerID = value
+		repositories.PublishEvent(context.TODO(), event)
+	}
+
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
 	"github.com/google/uuid"
-	"main-service/repositories"
+	"main-service/models"
 	"net"
 	"sync"
 )
@@ -84,30 +84,48 @@ func (handler *WSHandler) Run(conn net.Conn) {
 	}()
 }
 
-func (handler *WSHandler) Broadcast(topic, gameId string, data interface{}) {
+func (handler *WSHandler) Broadcast(topic string, eventData *models.EventData) {
 	resp := Response{
 		Topic: topic,
-		Data:  data,
+		Data:  eventData.Data,
 	}
-	handler.sidMapConn.Range(func(key, value any) bool {
-		conn := value.(net.Conn)
-		sid := key.(string)
-		gid := repositories.GetPlayerGameId(sid)
-		tools.Logger.Infof("sid; %s, gid: %s", sid, gid)
-
-		if gid != gameId {
-			return true
-		}
-		w := wsutil.NewWriter(conn, ws.StateServerSide, ws.OpText)
-		encoder := json.NewEncoder(w)
-		if err := encoder.Encode(&resp); err != nil {
-			tools.Logger.Errorf("encode error: %s", err)
-			return true
-		}
-		if err := w.Flush(); err != nil {
-			tools.Logger.Errorf("flush error: %s", err)
-			return true
-		}
-		return true
-	})
+	connI, ok := handler.sidMapConn.Load(eventData.Session)
+	if !ok {
+		return
+	}
+	conn, ok := connI.(net.Conn)
+	if !ok {
+		return
+	}
+	w := wsutil.NewWriter(conn, ws.StateServerSide, ws.OpText)
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(&resp); err != nil {
+		tools.Logger.Errorf("encode error: %s", err)
+		return
+	}
+	if err := w.Flush(); err != nil {
+		tools.Logger.Errorf("flush error: %s", err)
+		return
+	}
+	//handler.sidMapConn.Range(func(key, value any) bool {
+	//	conn := value.(net.Conn)
+	//	sid := key.(string)
+	//	gid := repositories.GetPlayerGameId(sid)
+	//	tools.Logger.Infof("sid; %s, gid: %s", sid, gid)
+	//
+	//	if gid != gameId {
+	//		return true
+	//	}
+	//	w := wsutil.NewWriter(conn, ws.StateServerSide, ws.OpText)
+	//	encoder := json.NewEncoder(w)
+	//	if err := encoder.Encode(&resp); err != nil {
+	//		tools.Logger.Errorf("encode error: %s", err)
+	//		return true
+	//	}
+	//	if err := w.Flush(); err != nil {
+	//		tools.Logger.Errorf("flush error: %s", err)
+	//		return true
+	//	}
+	//	return true
+	//})
 }

@@ -48,6 +48,11 @@ func InitRouters() bool {
 		tools.Logger.Errorf("empty key: %s", BetTableTMinus)
 		return false
 	}
+	TableState = os.Getenv("TABLE_STATE")
+	if TableState == "" {
+		tools.Logger.Errorf("empty key: %s", TableState)
+		return false
+	}
 	return true
 }
 
