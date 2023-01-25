@@ -60,7 +60,7 @@ func (handler *WSHandler) Run(conn net.Conn) {
 		for {
 			hdr, err := r.NextFrame()
 			if err != nil {
-				tools.Logger.Errorf("reat next message error: %s", err)
+				//tools.Logger.Errorf("reat next message error: %s", err)
 				return
 			}
 			if hdr.OpCode == ws.OpClose {

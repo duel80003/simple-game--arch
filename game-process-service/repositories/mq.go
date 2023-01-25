@@ -15,6 +15,7 @@ func PublishEvent(ctx context.Context, event *models.Event) (err error) {
 		tools.Logger.Errorf("rabbitMQ get channel error: %s", err)
 		return
 	}
+	defer ch.Close()
 	err = ch.ExchangeDeclare(
 		event.Exchange, // name
 		"fanout",       // type
