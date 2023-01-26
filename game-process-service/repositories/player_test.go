@@ -16,7 +16,7 @@ func TestSetPlayer(t *testing.T) {
 	defer drivers.RedisClose()
 	sid = uuid.NewString()
 	pid := "test"
-	SetPlayer(sid, pid)
+	SetPlayer(sid, pid, "01")
 	time.Sleep(1 * time.Second)
 }
 

@@ -47,7 +47,7 @@ func initConn() {
 			tools.Logger.Fatalf("init ws connection error: %s", err)
 		}
 		players[i].Conn = c
-		time.Sleep(time.Microsecond * 20)
+		time.Sleep(time.Millisecond * 30)
 	}
 }
 
@@ -81,7 +81,8 @@ func StopTesting() {
 
 	countStr := os.Getenv("PLAYER_COUNT")
 	count, _ := strconv.ParseFloat(countStr, 64)
-	count *= 100
+	count *= 50
+	tools.Logger.Infof("wiat: %.2f seconds", count/1000)
 	time.Sleep(time.Millisecond * time.Duration(count))
 }
 
@@ -106,6 +107,7 @@ func messageHandler(player *models.Player) {
 				tools.Logger.Infof("player: %s join game success", player.PlayerID)
 				handleJoinMsg(&res)
 			case Leave:
+				tools.Logger.Infof("player: %s leave game success", player.PlayerID)
 				return
 			case State:
 				stateI := res.Data[State]

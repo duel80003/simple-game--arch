@@ -25,6 +25,7 @@ func init() {
 	drivers.InitStateGrpcConn()
 	drivers.RedisInit()
 	drivers.RabbitMQInit()
+	drivers.InitChannels()
 }
 
 func serverStart() {
@@ -57,7 +58,7 @@ func main() {
 	_, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 	drivers.CloseStateGrpcConn()
-	drivers.RedisFlushAll()
+	drivers.RedisFlushDB()
 	drivers.RedisClose()
 	drivers.RabbitMQClose()
 }

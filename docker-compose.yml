@@ -16,3 +16,5 @@ services:
      environment:
        - RABBITMQ_DEFAULT_USER=root
        - RABBITMQ_DEFAULT_PASS=1234
+     volumes:
+       - ./data:/var/lib/rabbitmq

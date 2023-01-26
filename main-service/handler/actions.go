@@ -47,7 +47,7 @@ func join(request *Request, session string) (resp Response) {
 }
 
 func bet(request *Request, session string) (resp Response) {
-	tools.Logger.Infof("bet req: %+v", request)
+	tools.Logger.Debugf("bet req: %+v", request)
 	resp.Topic = request.Topic
 	betZone, ok := request.Data["betZone"].(float64)
 	if !ok {

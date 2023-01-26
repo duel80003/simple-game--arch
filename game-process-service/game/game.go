@@ -1,10 +1,8 @@
 package game
 
 import (
-	"context"
 	"fmt"
 	"game-process-service/config"
-	. "game-process-service/drivers"
 	"game-process-service/models"
 	proto "game-process-service/proto/gen/v1"
 	"game-process-service/repositories"
@@ -14,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 var room *Room
@@ -31,7 +28,6 @@ type Room struct {
 	PlayerSession map[string]string // key session, value pid
 	State         proto.State
 	mux           sync.RWMutex
-	ticker        *time.Ticker
 }
 
 func InitGameRoom() {
@@ -44,7 +40,6 @@ func InitGameRoom() {
 	room.RoomType = roomType
 	room.Chips = parseChips(chips)
 	room.PlayerSession = make(map[string]string)
-	room.ticker = time.NewTicker(1 * time.Second)
 }
 
 func parseChips(chipStr string) (chips []int32) {
@@ -73,6 +68,11 @@ func (room *Room) Join(pid, sid string) {
 	defer room.mux.Unlock()
 	room.PlayerSession[sid] = pid
 	repositories.SetPlayer(sid, pid, room.GameID)
+	GetNotifyManager().Join(&models.NotificationEvent{
+		Type: models.PlayerJoin,
+		SID:  sid,
+		PID:  pid,
+	})
 }
 
 func (room *Room) Leave(sid string) {
@@ -80,10 +80,14 @@ func (room *Room) Leave(sid string) {
 	defer room.mux.Unlock()
 	delete(room.PlayerSession, sid)
 	repositories.RemovePlayer(sid)
+	GetNotifyManager().Leave(&models.NotificationEvent{
+		Type: models.PlayerLeave,
+		SID:  sid,
+	})
 }
 
 func (room *Room) Bet(sid string, betZone, bet int32) bool {
-	tools.Logger.Infof("[Bet] current state: %v", room.State)
+	tools.Logger.Debugf("[Bet] current state: %v", room.State)
 	if room.State != proto.State_STATE_START_BET {
 		return false
 	}
@@ -95,54 +99,4 @@ func (room *Room) Bet(sid string, betZone, bet int32) bool {
 	repositories.UpdateRoomBetInfo(room.RoomID, config.BetZoneMap[betZone], bet)
 	repositories.UpdatePlayerBetInfo(sid, config.BetZoneMap[betZone], bet)
 	return true
-}
-
-func (room *Room) BetZoneInfos(tMinus int32) {
-	defer room.ticker.Stop()
-	room.ticker.Reset(1 * time.Second)
-	for {
-		select {
-		case <-room.ticker.C:
-			betZones := repositories.GetRoomBetInfo(room.RoomID)
-			betZoneInfos := new(models.BetZoneInfos)
-			betZoneInfos.BetZones = betZones
-			betZoneInfos.TMinus = tMinus
-			event := new(models.Event)
-			event.Exchange = ExchangeBetInfo
-			event.Router = BetTableTMinus
-			event.Data = &models.EventData{
-				Data: betZoneInfos,
-			}
-			room.mux.RLock()
-			for key, value := range room.PlayerSession {
-				event.Data.Session = key
-				event.Data.PlayerID = value
-				repositories.PublishEvent(context.TODO(), event)
-			}
-			room.mux.RUnlock()
-			tMinus--
-			if tMinus <= 0 {
-				return
-			}
-		}
-	}
-}
-
-func (room *Room) StateNotify() {
-	event := new(models.Event)
-	event.Exchange = ExchangeGameState
-	event.Router = TableState
-	state := new(models.StateInfo)
-	state.State = room.State
-	event.Data = &models.EventData{
-		Data: state,
-	}
-	room.mux.RLock()
-	defer room.mux.RUnlock()
-	for key, value := range room.PlayerSession {
-		event.Data.Session = key
-		event.Data.PlayerID = value
-		repositories.PublishEvent(context.TODO(), event)
-	}
-
 }

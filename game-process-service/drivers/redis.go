@@ -23,10 +23,10 @@ func RedisInit() {
 	tools.Logger.Infof("redis connected")
 }
 
-func RedisFlushAll() {
-	_, err := pool.Get().Do("FLUSHALL")
+func RedisFlushDB() {
+	_, err := pool.Get().Do("FLUSHDB")
 	if err != nil {
-		tools.Logger.Errorf("RedisFlushAll error: %s", err)
+		tools.Logger.Errorf("RedisFlushDB error: %s", err)
 	}
 }
 
