@@ -175,12 +175,12 @@ func betAction(player *models.Player) {
 }
 
 func getRandChip() int32 {
-	max := len(chips) - 1
+	max := len(chips)
 	return chips[rand.Intn(max)]
 }
 
 func getRandBetZone() int32 {
-	max := len(betZones) - 1
+	max := len(betZones)
 	return betZones[rand.Intn(max)]
 }
 

@@ -10,10 +10,9 @@ const (
 type EventType string
 
 type NotificationEvent struct {
-	Type     EventType
-	SID      string
-	PID      string
-	TMinus   int32
-	BetZones *BetZones
-	Event    *Event
+	Type   EventType
+	SID    string
+	PID    string
+	TMinus int32
+	Event  *Event
 }

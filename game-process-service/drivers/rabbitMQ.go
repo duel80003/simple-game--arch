@@ -17,6 +17,12 @@ var (
 	TableState        string
 )
 
+func GetRabbitMQConn() (*amqp.Connection, error) {
+	host := os.Getenv("RABBITMQ_ADDR")
+	conn, err := amqp.Dial(host)
+	return conn, err
+}
+
 func RabbitMQInit() {
 	var err error
 	host := os.Getenv("RABBITMQ_ADDR")

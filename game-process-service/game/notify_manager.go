@@ -15,19 +15,20 @@ type NotifyManager struct {
 	Channels []chan *models.NotificationEvent
 }
 
-func GetNotifyManager() *NotifyManager {
+func initNotifyManager() {
 	notifyManagerOnce.Do(func() {
 		notifyManager = new(NotifyManager)
 		for i := 0; i < 10; i++ {
 			ch := make(chan *models.NotificationEvent, 1)
 			notifyManager.Channels = append(notifyManager.Channels, ch)
-			chanHandler := new(ChanHandler)
-			chanHandler.ch = ch
-			chanHandler.players = make(map[string]string)
-			chanHandler.ticker = time.NewTicker(1 * time.Second)
+			chanHandler := newChanHandler(ch)
 			go chanHandler.startProcess()
 		}
 	})
+}
+
+func GetNotifyManager() *NotifyManager {
+
 	return notifyManager
 }
 

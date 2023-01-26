@@ -5,7 +5,6 @@ import (
 	"game-process-service/drivers"
 	"game-process-service/models"
 	proto "game-process-service/proto/gen/v1"
-	"game-process-service/repositories"
 	tools "github.com/duel80003/my-tools"
 	"io"
 )
@@ -38,9 +37,8 @@ func StartGameFlow() {
 				Type: models.NotifyState,
 			})
 			GetNotifyManager().Notify(&models.NotificationEvent{
-				Type:     models.NotifyBetZoneInfo,
-				TMinus:   state.GetTMinus(),
-				BetZones: repositories.GetRoomBetInfo(GetRoom().RoomID),
+				Type:   models.NotifyBetZoneInfo,
+				TMinus: state.GetTMinus(),
 			})
 		case proto.State_STATE_STOP_BET:
 			GetRoom().State = proto.State_STATE_STOP_BET

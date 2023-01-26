@@ -17,7 +17,12 @@ func RedisInit() {
 		MaxIdle:     20,
 		IdleTimeout: 300 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", host)
+			conn, err := redis.Dial("tcp", host)
+			if err != nil {
+				tools.Logger.Errorf("redis dial error: %s", err)
+				return nil, err
+			}
+			return conn, err
 		},
 	}
 	tools.Logger.Infof("redis connected")

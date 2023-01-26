@@ -40,6 +40,7 @@ func InitGameRoom() {
 	room.RoomType = roomType
 	room.Chips = parseChips(chips)
 	room.PlayerSession = make(map[string]string)
+	initNotifyManager()
 }
 
 func parseChips(chipStr string) (chips []int32) {
