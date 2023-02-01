@@ -74,16 +74,13 @@ func StopTesting() {
 	for i := range players {
 		go leaveAction(players[i])
 	}
-	if len(players) < 10 {
-		time.Sleep(time.Second * 1)
-		return
-	}
 
+	var basicCount float64 = 5
 	countStr := os.Getenv("PLAYER_COUNT")
 	count, _ := strconv.ParseFloat(countStr, 64)
-	count *= 50
-	tools.Logger.Infof("wiat: %.2f seconds", count/1000)
-	time.Sleep(time.Millisecond * time.Duration(count))
+	count /= 20
+    tools.Logger.Infof("wiat: %.2f seconds", count)
+	time.Sleep(time.Second * time.Duration(count+basicCount))
 }
 
 func messageHandler(player *models.Player) {

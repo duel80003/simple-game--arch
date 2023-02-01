@@ -9,6 +9,7 @@ import (
 
 func SetPlayer(sid, pid, gid string) {
 	conn := drivers.GetRedisConn()
+    defer conn.Close()
 	conn.Send("HSET", sid, "player_id", pid)
 	conn.Send("HSET", sid, "game_id", gid)
 	conn.Flush()
@@ -16,7 +17,9 @@ func SetPlayer(sid, pid, gid string) {
 
 func UpdatePlayerBetInfo(sid, betZone string, bet int32) {
 	tools.Logger.Debugf("[UpdatePlayerBetInfo] sid: %s, betZone: %s, bet: %d", sid, betZone, bet)
-	do, err := drivers.GetRedisConn().Do("HINCRBY", sid, betZone, bet)
+    conn := drivers.GetRedisConn()
+    defer conn.Close()
+    do, err := conn.Do("HINCRBY", sid, betZone, bet)
 	if err != nil {
 		tools.Logger.Errorf("[UpdatePlayerBetInfo] error: %s", err)
 		return
@@ -26,6 +29,7 @@ func UpdatePlayerBetInfo(sid, betZone string, bet int32) {
 
 func ResetPlayerBetInfo(sids, betZones []string) {
 	conn := drivers.GetRedisConn()
+    defer conn.Close()
 	for _, sid := range sids {
 		for _, v := range betZones {
 			conn.Send("HSET", sid, v, 0)
@@ -35,7 +39,9 @@ func ResetPlayerBetInfo(sids, betZones []string) {
 }
 
 func GetPlayer(sid string) (p *models.Player) {
-	values, err := redis.Values(drivers.GetRedisConn().Do("HGETALL", sid))
+    conn := drivers.GetRedisConn()
+    defer conn.Close()
+    values, err := redis.Values(conn.Do("HGETALL", sid))
 	if err != nil {
 		tools.Logger.Errorf("[GetRoomBetInfo] get info error: %s", err)
 		return
@@ -46,5 +52,7 @@ func GetPlayer(sid string) (p *models.Player) {
 }
 
 func RemovePlayer(sid string) {
-	drivers.GetRedisConn().Do("DEL", sid)
+    conn := drivers.GetRedisConn()
+    defer conn.Close()
+    conn.Do("DEL", sid)
 }

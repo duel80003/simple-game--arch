@@ -9,7 +9,9 @@ import (
 
 func UpdateRoomBetInfo(rid, betZone string, bet int32) {
 	tools.Logger.Debugf("[UpdateRoomBetInfo] rid: %s, betZone: %s, bet: %d", rid, betZone, bet)
-	do, err := drivers.GetRedisConn().Do("HINCRBY", rid, betZone, bet)
+    conn := drivers.GetRedisConn()
+    defer conn.Close()
+    do, err := conn.Do("HINCRBY", rid, betZone, bet)
 	if err != nil {
 		tools.Logger.Errorf("[UpdateRoomBetInfo] error: %s", err)
 		return
@@ -19,6 +21,7 @@ func UpdateRoomBetInfo(rid, betZone string, bet int32) {
 
 func ResetRoomBetInfo(rid string, betZones []string) {
 	conn := drivers.GetRedisConn()
+    defer conn.Close()
 	for _, v := range betZones {
 		conn.Send("HSET", rid, v, 0)
 	}
@@ -27,6 +30,7 @@ func ResetRoomBetInfo(rid string, betZones []string) {
 
 func GetRoomBetInfo(rid string) (betZones *models.BetZones) {
 	conn := drivers.GetRedisConn()
+    defer conn.Close()
 	values, err := redis.Values(conn.Do("HGETALL", rid))
 	if err != nil {
 		tools.Logger.Errorf("[GetRoomBetInfo] get info error: %s", err)
